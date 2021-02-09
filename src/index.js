@@ -5,7 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const {startDatabase} = require('./database/mongo');
-const {insertActivity, getActivities} = require('./database/activities');
+const {insertActivity, getActivities, deleteActivity, updateActivity} = require('./database/activities');
 
 // defining the Express app
 const app = express();
@@ -26,6 +26,23 @@ app.use(morgan('combined'));
 app.get('/activities', async (req, res) => {
     res.send(await getActivities());
 })
+
+app.post('/activities', async (req, res) => {
+    const newActivity = req.body;
+    await insertActivity(newActivity);
+    res.send({ message: 'New activity inserted.' });
+});
+
+app.delete('/activities:id', async (req, res) => {
+    await deleteActivity(req.params.id);
+    res.send({ message: 'Activity removed.' });
+});
+
+app.patch('/activities:id', async (req, res) => {
+    const updatedActivity = req.body;
+    await updateActivity(req.params.id, updatedActivity);
+    res.send({ message: 'Activity updated.' });
+});
 
 // start the in-memory MongoDB instance
 startDatabase().then(async () => {

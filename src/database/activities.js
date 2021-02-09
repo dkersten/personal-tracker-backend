@@ -1,4 +1,6 @@
 const {getDatabase} = require('./mongo');
+const {ObjectID} = require('mongodb');
+
 
 const collectionName = 'activities';
 
@@ -13,7 +15,29 @@ async function getActivities() {
   return await database.collection(collectionName).find({}).toArray();
 }
 
+async function deleteActivity(id) {
+    const database = await getDatabase();
+    await database.collection(collectionName).deleteOne({
+      _id: new ObjectID(id),
+    });
+  }
+
+  async function updateActivity(id, activity) {
+    const database = await getDatabase();
+    delete activity._id;
+    await database.collection(collectionName).update(
+      { _id: new ObjectID(id), },
+      {
+        $set: {
+          ...activity,
+        },
+      },
+    );
+  }
+
 module.exports = {
     insertActivity,
     getActivities,
+    deleteActivity,
+    updateActivity,
 };
